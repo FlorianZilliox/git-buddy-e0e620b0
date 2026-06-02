@@ -500,11 +500,12 @@ function transformBugsV2(sprintData, allTickets) {
  * @returns {Object} - Données Story Points formatées
  */
 function transformStoryPointsV2(sprintData, tickets) {
-  // Vérifier si on a des story points dans les données
+  // Vérifier si on a des story points OU des tickets engagés dans les données
   const hasStoryPoints = sprintData.some(s => s.storyPointsCommitted > 0 || s.storyPointsDelivered > 0);
+  const hasTickets = sprintData.some(s => (s.totalTickets || 0) > 0 || (s.closed || 0) > 0);
 
-  if (!hasStoryPoints) {
-    console.log('[V2 StoryPoints] Aucun story point trouvé dans les données CSV');
+  if (!hasStoryPoints && !hasTickets) {
+    console.log('[V2 StoryPoints] Aucun story point ni ticket trouvé dans les données CSV');
     return null;
   }
 
@@ -516,6 +517,12 @@ function transformStoryPointsV2(sprintData, tickets) {
     delivered: s.storyPointsDelivered || 0,
     completion: s.storyPointsCommitted > 0
       ? Math.round((s.storyPointsDelivered / s.storyPointsCommitted) * 100)
+      : 0,
+    // Tickets parallèle
+    ticketsCommitted: s.totalTickets || 0,
+    ticketsDelivered: s.closed || 0,
+    ticketsCompletion: (s.totalTickets || 0) > 0
+      ? Math.round(((s.closed || 0) / s.totalTickets) * 100)
       : 0
   }));
 
@@ -558,9 +565,38 @@ function transformStoryPointsV2(sprintData, tickets) {
     avgCompletion = avgCommitted > 0 ? Math.round((avgDelivered / avgCommitted) * 100) : 0;
   }
 
+  // ============================================================
+  // TICKETS (RG-01..RG-07) — vue parallèle au calcul SP
+  // ============================================================
+  const currentTicketsCommitted = currentSprint?.ticketsCommitted || 0;
+  const currentTicketsDelivered = currentSprint?.ticketsDelivered || 0;
+  const currentTicketsCompletion = currentTicketsCommitted > 0
+    ? Math.round((currentTicketsDelivered / currentTicketsCommitted) * 100)
+    : 0;
+
+  const midSprintTicketsCount = midSprintAdditions.length;
+  const midSprintTicketsDelivered = midSprintAdditions.filter(t => t.isFinished).length;
+  const initialTicketsCommitted = currentTicketsCommitted - midSprintTicketsCount;
+  const initialTicketsDelivered = currentTicketsDelivered - midSprintTicketsDelivered;
+  const initialTicketsCompletion = initialTicketsCommitted > 0
+    ? Math.round((initialTicketsDelivered / initialTicketsCommitted) * 100)
+    : 0;
+
+  const previousTicketsSprints = sprints.slice(0, -1).filter(s => s.ticketsCommitted > 0);
+  let avgTicketsCommitted = 0;
+  let avgTicketsDelivered = 0;
+  let avgTicketsCompletion = 0;
+  if (previousTicketsSprints.length > 0) {
+    avgTicketsCommitted = previousTicketsSprints.reduce((sum, s) => sum + s.ticketsCommitted, 0) / previousTicketsSprints.length;
+    avgTicketsDelivered = previousTicketsSprints.reduce((sum, s) => sum + s.ticketsDelivered, 0) / previousTicketsSprints.length;
+    avgTicketsCompletion = avgTicketsCommitted > 0 ? Math.round((avgTicketsDelivered / avgTicketsCommitted) * 100) : 0;
+  }
+
   // Vélocité recommandée = P50 Monte Carlo (cohérent avec page Forecast)
   let recommendedVelocity = Math.round(avgDelivered); // Fallback sur moyenne
+  let recommendedThroughput = Math.round(avgTicketsDelivered);
   let monteCarloP50 = null;
+  let monteCarloP50Throughput = null;
 
   // Exécuter Monte Carlo si on a assez de données
   const sprintNumbers = sprintData.map(s => s.sprint);
@@ -571,6 +607,11 @@ function transformStoryPointsV2(sprintData, tickets) {
         monteCarloP50 = mcAnalysis.simulation.storyPoints.p50;
         recommendedVelocity = monteCarloP50;
         console.log('[V2 StoryPoints] Monte Carlo P50 story points:', monteCarloP50);
+      }
+      if (mcAnalysis.simulation?.throughput?.p50) {
+        monteCarloP50Throughput = mcAnalysis.simulation.throughput.p50;
+        recommendedThroughput = monteCarloP50Throughput;
+        console.log('[V2 StoryPoints] Monte Carlo P50 throughput:', monteCarloP50Throughput);
       }
     } catch (error) {
       console.warn('[V2 StoryPoints] Erreur Monte Carlo, fallback sur moyenne:', error.message);
@@ -611,10 +652,32 @@ function transformStoryPointsV2(sprintData, tickets) {
     recommendedVelocity,
     isMonteCarloP50: monteCarloP50 !== null,
 
-    // Flag indiquant que les données viennent du CSV
-    isFromCSV: true
+    // Flags
+    hasStoryPoints,
+    hasTickets,
+    isFromCSV: true,
+
+    // Vue parallèle TICKETS (RG-01..RG-07)
+    tickets: {
+      currentCommitted: currentTicketsCommitted,
+      currentDelivered: currentTicketsDelivered,
+      currentCompletion: currentTicketsCompletion,
+      currentSprintLabel: currentSprint?.label || '',
+      initialCommitted: initialTicketsCommitted,
+      initialDelivered: initialTicketsDelivered,
+      initialCompletion: initialTicketsCompletion,
+      midSprintCount: midSprintTicketsCount,
+      midSprintDeliveredCount: midSprintTicketsDelivered,
+      avgCommitted: avgTicketsCommitted,
+      avgDelivered: avgTicketsDelivered,
+      avgCompletion: avgTicketsCompletion,
+      previousSprintsCount: previousTicketsSprints.length,
+      recommendedVelocity: recommendedThroughput,
+      isMonteCarloP50: monteCarloP50Throughput !== null
+    }
   };
 }
+
 
 // =========================================================================
 // WIP INDIVIDUEL MOYEN (calculé jour par jour pendant le sprint)
