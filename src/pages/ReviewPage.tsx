@@ -3,7 +3,6 @@
  * Textes, classes CSS, et structure HTML identiques.
  */
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '@/store/useAppStore'
 import { KpiGrid } from '@/components/kpi/KpiGrid'
 import { ThroughputKpi, CycleTimeKpi, BugsKpi, MidSprintKpi, MttrKpi, CfrKpi } from '@/components/kpi/KpiCards'
@@ -28,7 +27,7 @@ export function ReviewPage() {
   const availableSprints = useAppStore((s) => s.availableSprints)
   const selectedTeams = useAppStore((s) => s.selectedTeams)
   const availableTeams = useAppStore((s) => s.availableTeams)
-  const navigate = useNavigate()
+  
 
   const [goals, setGoals] = useState<Goal[]>([])
   const [throughputMetric, setThroughputMetric] = useState<'tickets' | 'storyPoints'>('tickets')
@@ -45,15 +44,10 @@ export function ReviewPage() {
   // Empty state — same as vanilla
   if (!csvLoaded || !sprintMetrics) {
     return (
-      <div className="review-page review-page--empty">
-        <div className="empty-state">
-          <div className="empty-state__icon">📊</div>
-          <h3 className="empty-state__title">Pas encore de données</h3>
-          <p className="empty-state__text">Commencez par charger vos fichiers CSV.</p>
-          <button className="btn--editorial" onClick={() => navigate('/admin')}>
-            Aller à la préparation
-          </button>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+        <span className="material-symbols-outlined text-5xl text-ink-mute mb-4">upload_file</span>
+        <h2 className="h-section mb-2">Aucune donnée</h2>
+        <p className="dek">Importez vos CSV depuis la page Admin.</p>
       </div>
     )
   }
