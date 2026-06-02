@@ -5,7 +5,7 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: '/git-buddy-e0e620b0/',
+  base: process.env.NODE_ENV === 'production' ? '/git-buddy-e0e620b0/' : '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
