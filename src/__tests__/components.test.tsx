@@ -66,14 +66,17 @@ describe('SpCompletionBlock', () => {
   it('renders delivered and committed', () => {
     render(
       <SpCompletionBlock
-        currentDelivered={38}
-        currentCommitted={45}
-        currentCompletion={84}
-        currentSprintLabel="Sprint 18"
-        initialCommitted={37}
-        initialDelivered={35}
-        initialCompletion={95}
-        midSprintSP={8}
+        unit="sp"
+        metrics={{
+          currentDelivered: 38,
+          currentCommitted: 45,
+          currentCompletion: 84,
+          currentSprintLabel: 'Sprint 18',
+          initialCommitted: 37,
+          initialDelivered: 35,
+          initialCompletion: 95,
+          midSprintAmount: 8,
+        }}
       />
     )
     expect(screen.getByText('38')).toBeDefined()
@@ -86,19 +89,23 @@ describe('SpCompletionBlock', () => {
   it('shows scope preserved when no mid-sprint', () => {
     render(
       <SpCompletionBlock
-        currentDelivered={42}
-        currentCommitted={45}
-        currentCompletion={93}
-        currentSprintLabel="Sprint 17"
-        initialCommitted={45}
-        initialDelivered={42}
-        initialCompletion={93}
-        midSprintSP={0}
+        unit="sp"
+        metrics={{
+          currentDelivered: 42,
+          currentCommitted: 45,
+          currentCompletion: 93,
+          currentSprintLabel: 'Sprint 17',
+          initialCommitted: 45,
+          initialDelivered: 42,
+          initialCompletion: 93,
+          midSprintAmount: 0,
+        }}
       />
     )
     expect(screen.getByText('Scope préservé')).toBeDefined()
   })
 })
+
 
 describe('GoalItem', () => {
   it('renders goal text and status', () => {
