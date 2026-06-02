@@ -31,6 +31,8 @@ export function ReviewPage() {
 
   const [goals, setGoals] = useState<Goal[]>([])
   const [throughputMetric, setThroughputMetric] = useState<'tickets' | 'storyPoints'>('tickets')
+  const [completionUnit, setCompletionUnit] = useState<'sp' | 'tickets' | null>(null)
+
 
   const addGoal = useCallback((text: string) => {
     if (goals.length >= 5) return
