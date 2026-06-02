@@ -38,7 +38,7 @@ export function ForecastPage() {
       <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
         <span className="material-symbols-outlined text-5xl text-ink-mute mb-4">upload_file</span>
         <h2 className="h-section mb-2">Aucune donnée</h2>
-        <p className="dek">Importez vos CSV depuis la page Admin.</p>
+        <p className="dek">Importez vos CSV depuis la page Préparation.</p>
       </div>
     )
   }
