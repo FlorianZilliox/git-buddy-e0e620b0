@@ -79,31 +79,72 @@ export function ReviewPage() {
         </div>
       </div>
 
-      {/* ══════ § 01 — STORY POINTS ══════ */}
-      {storyPoints && (
-        <div className="section--editorial" style={{ borderTop: 0, paddingTop: 0, marginTop: 0 }}>
-          <div className="section__head">
-            <div className="section__title">
-              <span className="section__num">§ 01 — Story points</span>
-              <h2 className="h-section">Engagement et livraison</h2>
+      {/* ══════ § 01 — ENGAGEMENT ET LIVRAISON ══════ */}
+      {storyPoints && (storyPoints.hasStoryPoints || storyPoints.hasTickets) && (() => {
+        // RG-08 : SP par défaut si dispo, sinon Tickets
+        const hasSP = !!storyPoints.hasStoryPoints && storyPoints.currentCommitted > 0
+        const hasTk = !!storyPoints.hasTickets && (storyPoints.tickets?.currentCommitted ?? 0) > 0
+        const defaultUnit: 'sp' | 'tickets' = hasSP ? 'sp' : 'tickets'
+        const unit: 'sp' | 'tickets' = completionUnit ?? defaultUnit
+        const showToggle = hasSP && hasTk
+
+        const metrics = unit === 'sp'
+          ? {
+              currentDelivered: storyPoints.currentDelivered,
+              currentCommitted: storyPoints.currentCommitted,
+              currentCompletion: storyPoints.currentCompletion,
+              currentSprintLabel: storyPoints.currentSprintLabel,
+              initialCommitted: storyPoints.initialCommitted ?? storyPoints.currentCommitted,
+              initialDelivered: storyPoints.initialDelivered ?? storyPoints.currentDelivered,
+              initialCompletion: storyPoints.initialCompletion ?? storyPoints.currentCompletion,
+              midSprintAmount: storyPoints.midSprintSP ?? 0,
+              avgDelivered: storyPoints.avgDelivered,
+              avgCompletion: storyPoints.avgCompletion,
+              previousSprintsCount: storyPoints.previousSprintsCount,
+              recommendedVelocity: storyPoints.recommendedVelocity,
+            }
+          : {
+              currentDelivered: storyPoints.tickets.currentDelivered,
+              currentCommitted: storyPoints.tickets.currentCommitted,
+              currentCompletion: storyPoints.tickets.currentCompletion,
+              currentSprintLabel: storyPoints.tickets.currentSprintLabel,
+              initialCommitted: storyPoints.tickets.initialCommitted,
+              initialDelivered: storyPoints.tickets.initialDelivered,
+              initialCompletion: storyPoints.tickets.initialCompletion,
+              midSprintAmount: storyPoints.tickets.midSprintCount ?? 0,
+              avgDelivered: storyPoints.tickets.avgDelivered,
+              avgCompletion: storyPoints.tickets.avgCompletion,
+              previousSprintsCount: storyPoints.tickets.previousSprintsCount,
+              recommendedVelocity: storyPoints.tickets.recommendedVelocity,
+            }
+
+        return (
+          <div className="section--editorial" style={{ borderTop: 0, paddingTop: 0, marginTop: 0 }}>
+            <div className="section__head">
+              <div className="section__title">
+                <span className="section__num">§ 01 — {unit === 'sp' ? 'Story points' : 'Tickets'}</span>
+                <h2 className="h-section">Engagement et livraison</h2>
+              </div>
+              {showToggle && (
+                <div className="toggle" aria-label="Mesurer en">
+                  <button
+                    data-action="set-completion-unit" data-value="sp"
+                    aria-pressed={unit === 'sp' ? 'true' : 'false'}
+                    onClick={() => setCompletionUnit('sp')}
+                  >SP</button>
+                  <button
+                    data-action="set-completion-unit" data-value="tickets"
+                    aria-pressed={unit === 'tickets' ? 'true' : 'false'}
+                    onClick={() => setCompletionUnit('tickets')}
+                  >Tickets</button>
+                </div>
+              )}
             </div>
+            <SpCompletionBlock metrics={metrics} unit={unit} />
           </div>
-          <SpCompletionBlock
-            currentDelivered={storyPoints.currentDelivered}
-            currentCommitted={storyPoints.currentCommitted}
-            currentCompletion={storyPoints.currentCompletion}
-            currentSprintLabel={storyPoints.currentSprintLabel}
-            initialCommitted={storyPoints.initialCommitted ?? storyPoints.currentCommitted}
-            initialDelivered={storyPoints.initialDelivered ?? storyPoints.currentDelivered}
-            initialCompletion={storyPoints.initialCompletion ?? storyPoints.currentCompletion}
-            midSprintSP={storyPoints.midSprintSP ?? 0}
-            avgDelivered={storyPoints.avgDelivered}
-            avgCompletion={storyPoints.avgCompletion}
-            previousSprintsCount={storyPoints.previousSprintsCount}
-            recommendedVelocity={storyPoints.recommendedVelocity}
-          />
-        </div>
-      )}
+        )
+      })()}
+
 
       {/* ══════ § 02 — INDICATEURS ══════ */}
       <div className="section--editorial">
