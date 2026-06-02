@@ -44,18 +44,21 @@ export const StoryPointsBlock: StoryObj = {
   render: () => (
     <div style={{ maxWidth: 500 }}>
       <SpCompletionBlock
-        currentDelivered={38}
-        currentCommitted={45}
-        currentCompletion={84}
-        currentSprintLabel="Sprint 18"
-        initialCommitted={37}
-        initialDelivered={35}
-        initialCompletion={95}
-        midSprintSP={8}
-        avgDelivered={34.2}
-        avgCompletion={88}
-        previousSprintsCount={5}
-        recommendedVelocity={36}
+        unit="sp"
+        metrics={{
+          currentDelivered: 38,
+          currentCommitted: 45,
+          currentCompletion: 84,
+          currentSprintLabel: 'Sprint 18',
+          initialCommitted: 37,
+          initialDelivered: 35,
+          initialCompletion: 95,
+          midSprintAmount: 8,
+          avgDelivered: 34.2,
+          avgCompletion: 88,
+          previousSprintsCount: 5,
+          recommendedVelocity: 36,
+        }}
       />
     </div>
   ),
@@ -66,15 +69,19 @@ export const StoryPointsNoMidSprint: StoryObj = {
   render: () => (
     <div style={{ maxWidth: 500 }}>
       <SpCompletionBlock
-        currentDelivered={42}
-        currentCommitted={45}
-        currentCompletion={93}
-        currentSprintLabel="Sprint 17"
-        initialCommitted={45}
-        initialDelivered={42}
-        initialCompletion={93}
-        midSprintSP={0}
+        unit="sp"
+        metrics={{
+          currentDelivered: 42,
+          currentCommitted: 45,
+          currentCompletion: 93,
+          currentSprintLabel: 'Sprint 17',
+          initialCommitted: 45,
+          initialDelivered: 42,
+          initialCompletion: 93,
+          midSprintAmount: 0,
+        }}
       />
     </div>
   ),
 }
+
