@@ -3,6 +3,7 @@
  * Textes, classes CSS, et structure HTML identiques.
  */
 import { useState, useCallback, useRef, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useAppStore } from '@/store/useAppStore'
 import { KpiGrid } from '@/components/kpi/KpiGrid'
 import { ThroughputKpi, CycleTimeKpi, BugsKpi, MidSprintKpi, MttrKpi, CfrKpi } from '@/components/kpi/KpiCards'
@@ -46,11 +47,15 @@ export function ReviewPage() {
   // Empty state — same as vanilla
   if (!csvLoaded || !sprintMetrics) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+      <Link
+        to="/admin"
+        className="flex flex-col items-center justify-center min-h-[400px] text-center cursor-pointer transition-opacity hover:opacity-80 no-underline"
+        aria-label="Aller à la page Préparation pour importer des CSV"
+      >
         <span className="material-symbols-outlined text-5xl text-ink-mute mb-4">upload_file</span>
         <h2 className="h-section mb-2">Aucune donnée</h2>
         <p className="dek">Importez vos CSV depuis la page Préparation.</p>
-      </div>
+      </Link>
     )
   }
 
